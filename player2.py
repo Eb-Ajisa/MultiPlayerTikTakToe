@@ -36,19 +36,31 @@ root.mainloop()
 '''
 game = True
 
-def create_game():
-    def close_window():
-        window.quit()
-        window.destroy()
-        print('Window closed')
+def create_game(clientSocket):
     #Create window
     window = tk.Tk()
     #Title for TikTacToe
     window.title("Tic Tac Toe")
 
+    frame = tk.Frame(window)
+    frame.pack()
+    def close_window():
+        window.quit()
+        window.destroy()
+        print('Window closed')
+    
+    def replacebut():
+        for button in frame.winfo_children():
+            button.destroy()
+        label2 = tk.Label(window, text="GG")
+        label2.place(x=100, y=100)
+
+
     #Window size
     window.geometry("800x800")
-    
+
+    turn = tk.Label(window, text="Its oppobnents turn", font=("Arial", 20))
+    turn.pack()
     #declare the name
     label = tk.Label(window, text="Tic Tac Toe")
     label.pack()
@@ -57,32 +69,44 @@ def create_game():
     close_button.place(x=400, y=750)
     
     #Row 1
-    topleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    topleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     topleft.place(x=100, y=100)
-    topcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    topcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     topcenter.place(x=350, y=100)
-    topright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    topright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     topright.place(x=550, y=100)
 
     #Middle row 2
-    midleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    midleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     midleft.place(x=100, y=350)    
-    midcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    midcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     midcenter.place(x=350, y=350)
-    midright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    midright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     midright.place(x=550, y=350)
 
     #Bot row 3
-    botleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    botleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     botleft.place(x=100, y=600)
-    botcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    botcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     botcenter.place(x=350, y=600)
-    botright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=close_window)
+    botright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     botright.place(x=650, y=600)
+
+    def rec():
+        turn1= clientSocket.recv(1024)
+        turn11 = pickle.loads(turn1)
+        print(turn11)
+        if turn11.get('topleft') == "topleft":
+            window.after(0, replacebut)
+        return None
+
+
+    g= threading.Thread(target=rec).start()
+
 
     window.mainloop()
 
-#Useless for now
+#Execute functions mainly start the mainloop for the gui
 def func(gm):
     exec(gm)
 
@@ -101,7 +125,7 @@ while game == True:
 
     clientSocket.send(sentence.encode())
 
-    p2game = threading.Thread(target=create_game)
+    p2game = threading.Thread(target=create_game, args=(clientSocket,))
     p2game.start()
     p2game.join()
 
@@ -111,6 +135,5 @@ while game == True:
         clientSocket.shutdown(SHUT_RDWR)
         clientSocket.close()
         break
-
 
 

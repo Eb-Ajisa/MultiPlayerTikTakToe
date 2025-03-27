@@ -15,16 +15,33 @@ serverSocket.listen(1)
 import tkinter as tk
 import threading
 
+#Create window thread
+def create_game(connectionSocket):
+    window = tk.Tk()
+    window.title("Tic Tac Toe")
 
-def create_game():
+    frame = tk.Frame(window)
+    frame.pack()
+
+    #Close window function
     def close_window():
         window.quit()
         window.destroy()
         print('Window closed')
-    #Create window
-    window = tk.Tk()
-    #Title for TikTacToe
-    window.title("Tic Tac Toe")
+
+    #Send updated ui to client and disable all buttons bec it is not
+    #Our turn after we had clicked a button
+    def send_msg(butt,x,y):
+        butt.destroy()
+        ll = tk.Label(window, text="Go here", font=("Arial", 20))
+        ll.place(x=x, y=y)
+        updated = {'topleft': 'topleft'}
+        connectionSocket.send(pickle.dumps(updated))
+        for widget in window.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.config(state='disabled')
+        close_button.config(state='normal')
+        turn.config(text="Its opponents turn!")
 
     #Window size
     window.geometry("800x800")
@@ -33,11 +50,14 @@ def create_game():
     label = tk.Label(window, text="Tic Tac Toe")
     label.pack()
 
+    #Turn variable
+    turn = tk.Label(window, text="Its your turn!", font=("Arial", 20))
+    turn.pack()
     close_button = tk.Button(window, text="close", fg="red",font=("Arial", 16), command=close_window)
     close_button.place(x=400, y=750)
     
     #Row 1
-    topleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
+    topleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=lambda: send_msg(topleft,100,100))
     topleft.place(x=100, y=100)
     topcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     topcenter.place(x=350, y=100)
@@ -59,6 +79,9 @@ def create_game():
     botcenter.place(x=350, y=600)
     botright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
     botright.place(x=650, y=600)
+    #turn.config(text=f"Value: {data.get('value', 0)}")
+    
+    
 
     window.mainloop()
         
@@ -72,7 +95,8 @@ while game == True:
         print('Game started')
         print("Sent to player 2")
 
-        gap = threading.Thread(target=create_game)
+        #For structure we do this in a thread
+        gap = threading.Thread(target=create_game, args=(connectionSocket,))
         gap.start()   
         gap.join()
 

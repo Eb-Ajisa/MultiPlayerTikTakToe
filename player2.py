@@ -49,55 +49,69 @@ def create_game(clientSocket):
         window.destroy()
         print('Window closed')
     
-    def replacebut():
-        for button in frame.winfo_children():
-            button.destroy()
+    def replacebut(widget,x,y):
+        widget.destroy()
         label2 = tk.Label(window, text="GG")
-        label2.place(x=100, y=100)
+        label2.place(x=x, y=y)
 
 
     #Window size
     window.geometry("800x800")
+    canvas = tk.Canvas(window, width=800, height=800)
+    canvas.place(x=0, y=50)
+    canvas.create_line(280, 70, 280, 800, fill="black", width = 5)
+    canvas.create_line(525, 70, 525, 800, fill="black", width = 5)
+    canvas.create_line(20, 260, 760, 260, fill="black", width = 5)
+    canvas.create_line(20, 260, 760, 260, fill="black", width = 5)
+    canvas.create_line(20, 500, 760, 500, fill="black", width = 5)
 
     turn = tk.Label(window, text="Its oppobnents turn", font=("Arial", 20))
     turn.pack()
     #declare the name
     label = tk.Label(window, text="Tic Tac Toe")
     label.pack()
-
-    close_button = tk.Button(window, text="close", fg="red",font=("Arial", 16), command=close_window)
-    close_button.place(x=400, y=750)
     
     #Row 1
-    topleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    topleft.place(x=100, y=100)
-    topcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    topcenter.place(x=350, y=100)
-    topright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    topright.place(x=550, y=100)
+    topleft = tk.Button(window, text=" ",  width=17, height=6 ,font=("Arial", 16))
+    topleft.place(x=50, y=120)
+    topcenter = tk.Button(window, text="  ",  width=17, height=6 ,font=("Arial", 16))
+    topcenter.place(x=295, y=120)
+    topright = tk.Button(window, text="   ",  width=17, height=6 ,font=("Arial", 16))
+    topright.place(x=540, y=120)
 
     #Middle row 2
-    midleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    midleft.place(x=100, y=350)    
-    midcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    midcenter.place(x=350, y=350)
-    midright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    midright.place(x=550, y=350)
+    midleft = tk.Button(window, text="    ",  width=17, height=6 ,font=("Arial", 16))
+    midleft.place(x=50, y=350)    
+    midcenter = tk.Button(window, text="     ",  width=17, height=6 ,font=("Arial", 16))
+    midcenter.place(x=290, y=350)
+    midright = tk.Button(window, text="      ",  width=17, height=6 ,font=("Arial", 16))
+    midright.place(x=540, y=350)
 
     #Bot row 3
-    botleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    botleft.place(x=100, y=600)
-    botcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    botcenter.place(x=350, y=600)
-    botright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    botright.place(x=650, y=600)
+    botleft = tk.Button(window, text="       ",  width=17, height=6 ,font=("Arial", 16))
+    botleft.place(x=50, y=600)
+    botcenter = tk.Button(window, text="        ",  width=17, height=6 ,font=("Arial", 16))
+    botcenter.place(x=290, y=600)
+    botright = tk.Button(window, text="         ",  width=17, height=6 ,font=("Arial", 16))
+    botright.place(x=540, y=600)
 
+    #Recieve (Will use semaphore to allow for automation)
     def rec():
-        turn1= clientSocket.recv(1024)
-        turn11 = pickle.loads(turn1)
+        msg = clientSocket.recv(1024)
+        #Its your turn now so change text and recieve message
+        turn.config(text="Its your turn!")
+        turn11 = pickle.loads(msg)
+
         print(turn11)
-        if turn11.get('topleft') == "topleft":
-            window.after(0, replacebut)
+        for widget in window.winfo_children():
+            if isinstance(widget, tk.Button):
+                #Recieve the text based on any button clicked to find the right one
+                widget.cget('text')
+                #If recieved text == button text then replace
+                if turn11.get('butt') == widget.cget('text'):
+                    x = turn11.get('x')
+                    y = turn11.get('y')
+                    window.after(0, replacebut(widget,x,y))
         return None
 
 
@@ -135,5 +149,3 @@ while game == True:
         clientSocket.shutdown(SHUT_RDWR)
         clientSocket.close()
         break
-
-

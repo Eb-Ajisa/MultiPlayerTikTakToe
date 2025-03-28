@@ -19,6 +19,7 @@ import threading
 def create_game(connectionSocket):
     window = tk.Tk()
     window.title("Tic Tac Toe")
+    window.resizable(False, False)
 
     frame = tk.Frame(window)
     frame.pack()
@@ -32,19 +33,27 @@ def create_game(connectionSocket):
     #Send updated ui to client and disable all buttons bec it is not
     #Our turn after we had clicked a button
     def send_msg(butt,x,y):
+        c = butt.cget('text')
         butt.destroy()
+        turn.config(text="Its Opponents turn!")
         ll = tk.Label(window, text="Go here", font=("Arial", 20))
         ll.place(x=x, y=y)
-        updated = {'topleft': 'topleft'}
+        updated = {'butt' : c, 'x' : x, 'y' : y}
         connectionSocket.send(pickle.dumps(updated))
         for widget in window.winfo_children():
             if isinstance(widget, tk.Button):
                 widget.config(state='disabled')
-        close_button.config(state='normal')
         turn.config(text="Its opponents turn!")
 
     #Window size
     window.geometry("800x800")
+    canvas = tk.Canvas(window, width=800, height=800)
+    canvas.place(x=0, y=50)
+    canvas.create_line(280, 70, 280, 800, fill="black", width = 5)
+    canvas.create_line(525, 70, 525, 800, fill="black", width = 5)
+    canvas.create_line(20, 260, 760, 260, fill="black", width = 5)
+    canvas.create_line(20, 260, 760, 260, fill="black", width = 5)
+    canvas.create_line(20, 500, 760, 500, fill="black", width = 5)
     
     #declare the name
     label = tk.Label(window, text="Tic Tac Toe")
@@ -53,32 +62,29 @@ def create_game(connectionSocket):
     #Turn variable
     turn = tk.Label(window, text="Its your turn!", font=("Arial", 20))
     turn.pack()
-    close_button = tk.Button(window, text="close", fg="red",font=("Arial", 16), command=close_window)
-    close_button.place(x=400, y=750)
     
     #Row 1
-    topleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16), command=lambda: send_msg(topleft,100,100))
-    topleft.place(x=100, y=100)
-    topcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    topcenter.place(x=350, y=100)
-    topright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    topright.place(x=550, y=100)
-
+    topleft = tk.Button(window, text=" ",  width=17, height=6 ,font=("Arial", 16), command=lambda: send_msg(topleft,50,100))
+    topleft.place(x=50, y=120)
+    topcenter = tk.Button(window, text="  ",  width=17, height=6 ,font=("Arial", 16))
+    topcenter.place(x=295, y=120)
+    topright = tk.Button(window, text="   ",  width=17, height=6 ,font=("Arial", 16))
+    topright.place(x=540, y=120)
     #Middle row 2
-    midleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    midleft.place(x=100, y=350)    
-    midcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    midcenter.place(x=350, y=350)
-    midright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    midright.place(x=550, y=350)
+    midleft = tk.Button(window, text="    ",  width=17, height=6 ,font=("Arial", 16))
+    midleft.place(x=50, y=350)    
+    midcenter = tk.Button(window, text="     ",  width=17, height=6 ,font=("Arial", 16))
+    midcenter.place(x=295, y=350)
+    midright = tk.Button(window, text="      ",  width=17, height=6 ,font=("Arial", 16))
+    midright.place(x=540, y=350)
 
     #Bot row 3
-    botleft = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    botleft.place(x=100, y=600)
-    botcenter = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    botcenter.place(x=350, y=600)
-    botright = tk.Button(window, text="Go Here!", fg="red",font=("Arial", 16))
-    botright.place(x=650, y=600)
+    botleft = tk.Button(window, text="       ",  width=17, height=6 ,font=("Arial", 16))
+    botleft.place(x=50, y=600)
+    botcenter = tk.Button(window, text="        ",  width=17, height=6 ,font=("Arial", 16))
+    botcenter.place(x=295, y=600)
+    botright = tk.Button(window, text="         ",  width=17, height=6 ,font=("Arial", 16))
+    botright.place(x=540, y=600)
     #turn.config(text=f"Value: {data.get('value', 0)}")
     
     

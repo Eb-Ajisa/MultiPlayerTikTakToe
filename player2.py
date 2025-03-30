@@ -51,8 +51,20 @@ def create_game(clientSocket):
     
     def replacebut(widget,x,y):
         widget.destroy()
-        label2 = tk.Label(window, text="GG")
-        label2.place(x=x, y=y)
+        Rec = canvas.create_rectangle(x + 15, y - 10, x+170, y+150, fill="", outline="black", width=5)
+
+    def send_msg(butt,x,y):
+        c = butt.cget('text')
+        butt.destroy()
+        turn.config(text="Its Opponents turn!")
+        X = canvas.create_oval(x, y - 10, x+170, y+150, fill="", outline="black", width=5)
+        updated = {'butt': c, 'x': x, 'y': y}
+        clientSocket.send(pickle.dumps(updated))
+        for widget in window.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.config(state='disabled')
+        turn.config(text="Its opponents turn!")
+        g = threading.Thread(target=rec).start()
 
 
     #Window size
@@ -72,11 +84,11 @@ def create_game(clientSocket):
     label.pack()
     
     #Row 1
-    topleft = tk.Button(window, text=" ",  width=17, height=6 ,font=("Arial", 16))
+    topleft = tk.Button(window, text=" ",  width=17, height=6 ,font=("Arial", 16), command=lambda: send_msg(topleft,50,100))
     topleft.place(x=50, y=120)
-    topcenter = tk.Button(window, text="  ",  width=17, height=6 ,font=("Arial", 16))
+    topcenter = tk.Button(window, text="  ",  width=17, height=6 ,font=("Arial", 16), command=lambda: send_msg(topcenter,295,100))
     topcenter.place(x=295, y=120)
-    topright = tk.Button(window, text="   ",  width=17, height=6 ,font=("Arial", 16))
+    topright = tk.Button(window, text="   ",  width=17, height=6 ,font=("Arial", 16), command=lambda: send_msg(topright,540,100))
     topright.place(x=540, y=120)
 
     #Middle row 2
@@ -104,8 +116,10 @@ def create_game(clientSocket):
 
         print(turn11)
         for widget in window.winfo_children():
+
             if isinstance(widget, tk.Button):
                 #Recieve the text based on any button clicked to find the right one
+                widget.config(state='normal')
                 widget.cget('text')
                 #If recieved text == button text then replace
                 if turn11.get('butt') == widget.cget('text'):
@@ -113,6 +127,10 @@ def create_game(clientSocket):
                     y = turn11.get('y')
                     window.after(0, replacebut(widget,x,y))
         return None
+    
+    for widget in window.winfo_children():
+        if isinstance(widget, tk.Button):
+            widget.config(state='disabled')
 
 
     g= threading.Thread(target=rec).start()
@@ -149,3 +167,4 @@ while game == True:
         clientSocket.shutdown(SHUT_RDWR)
         clientSocket.close()
         break
+

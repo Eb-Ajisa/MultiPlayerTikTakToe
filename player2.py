@@ -11,6 +11,7 @@ import pickle
 #Winner 1: Player 1 wins
 #Winner 2: Player 2 wins
 #Winner 3: Draw
+#Answer is the deciding factor of who goes first
 winner = 0
 answer = 0
 #Socket Configuration
@@ -22,13 +23,14 @@ serverName = ip_address # server IP
 serverPort = 10000
 clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((serverName,serverPort))
+#Set counter to 0 for turns
 counter = 0
-#Loop for socket
+#Loop for socket and again is the value shown to say we are doing another game
 game = True
 again = 0
-#Database for player 2
+#Database for player 2(Us)
 mystuff = []
-#Database for player 1
+#Database for player 1(Them)
 opponenetstuff = []
 
 def check_win(canvas, window):
@@ -103,7 +105,7 @@ def check_win(canvas, window):
             lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(670,50, 670,800, fill="red", width = 5)
             p = False
-        #------------------------------------------------------------------------------------------------------    
+#------------------------------------------------------------------------------------------------------    
         #Check who wins for the first diagonal combination
         elif " " in mystuff and "     " in mystuff and "         " in mystuff:
             winner = 2
@@ -125,46 +127,51 @@ def check_win(canvas, window):
             winner = 1
             lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(800,50,0,790, fill="red", width = 5)
-
-            p = False
+            p = False       
         #Draw
-        if counter == 9:
+        elif counter == 9:
             winner = 3
             label5 = tk.Label(window, text = "Draw", font=("Arial", 20)).pack() 
             p = False
-
+    #Destroy the turn label
     for widget in window.winfo_children():
         if isinstance(widget, tk.Label):
             if widget.cget('text') == "Its opponents turn!" or widget.cget('text') == "It's your turn!":
                 widget.destroy()
             else:
                 pass    
+    #Play again variables
     label3 = tk.Label(window, text = "Play Again? Y/N", font=("Arial", 20)).pack()
     answer = random.randint(0,1)
     answerr = str(answer)
     clientSocket.send(answerr.encode())
+
+    #Disable all button for error handling
     for widget in window.winfo_children():
         if isinstance(widget, tk.Button):
             widget.config(state='disabled')
         else:
             pass
-
+    
     play_gain2 = tk.Button(window, text = "N", command = lambda: (window.destroy(), window.quit())).pack()
     play_gain1 = tk.Button(window, text = "Y", command = lambda: stop(window, canvas, clientSocket)).pack()
+    #Enable all buttons
     for widget in window.winfo_children():
         if isinstance(widget, tk.Button):
             widget.config(state='normal')
         else:
             pass
+
     return winner
 
-def stop(window, canvas, clientSocket):
+def stop(window, canvas, clientSocket): #Redo the game
     global again
     canvas.delete('all')
     for widget in window.winfo_children():
         widget.destroy()
     window.destroy()
     window.quit()
+    #Reset all variables and set again = 1
     again = 1
     global counter
     global opponenetstuff
@@ -173,6 +180,7 @@ def stop(window, canvas, clientSocket):
     opponenetstuff = []
     counter = 0
 def create_game(clientSocket):
+    #This player is assigned 1
     global answer
     if answer == 0:
         first = False
@@ -180,6 +188,7 @@ def create_game(clientSocket):
     else:
         first = True
         print("Going first")
+    print("Loading....")
     sleep(4)
 
 
@@ -199,9 +208,7 @@ def create_game(clientSocket):
         widget.destroy()
         X1= canvas.create_line(x+ 20, y + 150, x+170, y-20, fill="black", width = 5)
         X2= canvas.create_line(x+170, y+150, x+20, y-20, fill="black", width = 5)
-        #canvas.create_line(70, 250, 220, 80, fill="black", width = 5)
-        #canvas.create_line(220, 250, 70, 80, fill="black", width = 5)
-        #x - 50 y -100
+        
     def send_msg(butt,x,y):
         global winner
         global counter 
@@ -209,7 +216,6 @@ def create_game(clientSocket):
         #Recieve text and destroy button and switch turns 
         c = butt.cget('text')
         butt.destroy()
-        turn.config(text="Its Opponents turn!")
         #Player 2 symbol and add player 2 stuff to database
         circle = canvas.create_oval(x, y - 10, x+170, y+150, fill="", outline="black", width=5)
         updated = {'butt': c, 'x': x, 'y': y}
@@ -222,10 +228,13 @@ def create_game(clientSocket):
             if isinstance(widget, tk.Button):
                 #Disable all buttons/window
                 widget.config(state='disabled')
+            else:
+                pass
         #Say whos turn it is
         turn.config(text="Its opponents turn!")
 
         #End turn by start receiving thread
+        #THis is to ensure no thread leakage to a new game
         if winner == 0:
             g = threading.Thread(target=rec, daemon=True).start()
 
@@ -304,8 +313,7 @@ def create_game(clientSocket):
         global counter
         counter += 1
         return None
-    
-    #For work in progress
+    #IF we go 2nd disable buttons
     if first == False:
         for widget in window.winfo_children():
             if isinstance(widget, tk.Button):
@@ -313,13 +321,13 @@ def create_game(clientSocket):
 
     
     checkwin = threading.Thread(target= lambda: check_win(canvas, window)).start()
+    #Start recieve thread if we go 2nd
     if first == False:
         g= threading.Thread(target=rec).start()
     
 
 
     window.mainloop()
-    #rec()
 
 
 #Game initalization
@@ -332,6 +340,7 @@ if sentence != '1':
       clientSocket.shutdown(SHUT_RDWR)
       clientSocket.close()
 
+#Determines who goes first
 answer = random.randint(0,1)
 answerr = str(answer)
 clientSocket.send(answerr.encode())
@@ -344,12 +353,13 @@ while game == True:
     p2game.start()
     p2game.join()
     while again ==1:
+        #if we play again rerun game
         winner = 0
         again = 0
         poo = threading.Thread(target=create_game, args=(clientSocket,))
         poo.start()
         poo.join()
-    print("Byeee")
+    print("Closing Program")
     game = False
 
 clientSocket.shutdown(SHUT_RDWR)

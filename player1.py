@@ -29,7 +29,7 @@ serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 serverSocket.bind(('',serverPort))
 serverSocket.listen(1)
 connectionSocket, addr = serverSocket.accept()
-
+#Set global again to 0  as defauklt
 again = 0
 import tkinter as tk
 import threading
@@ -135,22 +135,18 @@ def check_win(canvas, window):
             winner = 3
             label5 = tk.Label(window, text = "Draw", font=("Arial", 20)).pack() 
             p = False
+
  #Destroy turn widget
     for widget in window.winfo_children():
         if isinstance(widget, tk.Label):
-            if widget.cget('text') == "its opponents turn!" or widget.cget('text') == "it's your turn!":
-                widget.destroy()    
+            if widget.cget('text') == "Its opponents turn!" or widget.cget('text') == "it's your turn!":
+                widget.destroy()
+            else:
+                pass 
     label3 = tk.Label(window, text = "Play Again? Y/N", font=("Arial", 20)).pack()
     #Get who goes first next round
     answercheck(connectionSocket)
 
-    #Destroy turn widget
-    for widget in window.winfo_children():
-        if isinstance(widget, tk.Label):
-            if widget.cget('text') == "Its opponents turn!" or widget.cget('text') == "It's your turn!":
-                widget.destroy()
-            else:
-                pass
     #disable buttons
     for widget in window.winfo_children():
         if isinstance(widget, tk.Button):
@@ -172,9 +168,11 @@ def answercheck(connectionSocket):
     global answer
     answer = connectionSocket.recv(1024).decode()
     answer = int(answer)
+    #recieve who is going next
 
 def stop(window, canvas, connectionSocket):
     global again
+    #Reset everything to allow a freash game
     canvas.delete('all')
     for widget in window.winfo_children():
         widget.destroy()
@@ -190,6 +188,7 @@ def stop(window, canvas, connectionSocket):
 #Create window thread
 def create_game(connectionSocket):
     global answer
+    #This player is assigned 0
     if answer == 0:
         first = True
         print("going 1st")
@@ -208,9 +207,7 @@ def create_game(connectionSocket):
     window.geometry("800x800")
     canvas = tk.Canvas(window, width=800, height=800)
     canvas.place(x=0, y=50)
-    #Send updated ui to client and disable all buttons bec it is not
-    #Our turn after we had clicked a button
-    #Turn variable
+
 
     #declare the name
     label = tk.Label(window, text="Tic Tac Toe")
@@ -225,11 +222,9 @@ def create_game(connectionSocket):
         counter += 1
         c = butt.cget('text')
         butt.destroy()
-        turn.config(text="Its Opponents turn!")
+        turn.config(text="Its opponents turn!")
         X1= canvas.create_line(x+ 20, y + 150, x+170, y-20, fill="black", width = 5)
         X2= canvas.create_line(x+170, y+150, x+20, y-20, fill="black", width = 5)
-        #canvas.create_line(70, 250, 220, 80, fill="black", width = 5)
-        #canvas.create_line(220, 250, 70, 80, fill="black", width = 5)
         #x - 50 y -100
         updated = {'butt': c, 'x': x, 'y': y}
         #Add to database to determine results
@@ -243,7 +238,6 @@ def create_game(connectionSocket):
                 widget.config(state='disabled')
         turn.config(text="Its opponents turn!")
         #End turn by start receiving
-        #rec()
         if winner == 0:
             g = threading.Thread(target=rec, daemon=True).start()
     def rec():
@@ -287,7 +281,7 @@ def create_game(connectionSocket):
         turn = tk.Label(window, text="Its your turn!", font=("Arial", 20))
         turn.pack()
     else:
-        turn = tk.Label(window, text="Its Opponents turn!", font=("Arial", 20))
+        turn = tk.Label(window, text="Its opponents turn!", font=("Arial", 20))
         turn.pack()
 
 
@@ -317,21 +311,24 @@ def create_game(connectionSocket):
     botright.place(x=540, y=580)
     #turn.config(text=f"Value: {data.get('value', 0)}")
     
+    #if we go 2nd disable buttons
     if first == False:
         for widget in window.winfo_children():
             if isinstance(widget, tk.Button):
                 widget.config(state='disabled')
 
+    #Start checkwinning thread to check at all times
     checkwin = threading.Thread(target= lambda: check_win(canvas, window)).start()
     if first == False:
         g = threading.Thread(target=rec).start()
 
     window.mainloop()
-        
+#recieve answer
 answer = connectionSocket.recv(1024).decode()
 answer = int(answer)
 game = True
 while game == True:
+    #recieve gamestart confirmation
     gamestart = connectionSocket.recv(1024).decode()
     if gamestart == '1':
 
@@ -340,14 +337,14 @@ while game == True:
         gap.start()   
         gap.join()
 
-        print("No Error")
         while again ==1:
+            #if we play again reset
             winner = 0
             again = 0
             poo = threading.Thread(target=create_game, args=(connectionSocket,))
             poo.start()
             poo.join()
-        print("Byeee")
+        print("Closing program")
         game = False
     else:
         print('Game not started due to another value, Closing connection')
@@ -355,3 +352,6 @@ while game == True:
         game = False
         connectionSocket.shutdown(SHUT_RDWR)
         connectionSocket.close()
+
+connectionSocket.shutdown(SHUT_RDWR)
+connectionSocket.close()

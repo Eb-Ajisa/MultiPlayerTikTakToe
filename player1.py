@@ -129,12 +129,16 @@ def check_win(canvas, window):
             widget.config(state='disabled')
     answerthread = threading.Thread(target=answercheck, args=(connectionSocket,))
     answerthread.start()
+    play_gain2 = tk.Button(window, text = "N", command = lambda: (window.destroy(), window.quit())).pack()
+    play_gain1 = tk.Button(window, text = "Y", command = lambda: stop(window, canvas, connectionSocket)).pack()
+    for widget in window.winfo_children():
+        if isinstance(widget, tk.Button):
+            widget.config(state='disabled')
     answerthread.join()
     for widget in window.winfo_children():
         if isinstance(widget, tk.Button):
             widget.config(state='normal')
-    play_gain2 = tk.Button(window, text = "N", command = lambda: (window.destroy(), window.quit())).pack()
-    play_gain1 = tk.Button(window, text = "Y", command = lambda: stop(window, canvas, connectionSocket)).pack()
+    
     return winner
 def answercheck(connectionSocket):
     global answer
@@ -287,7 +291,7 @@ def create_game(connectionSocket):
         for widget in window.winfo_children():
             if isinstance(widget, tk.Button):
                 widget.config(state='disabled')
-                
+
     checkwin = threading.Thread(target= lambda: check_win(canvas, window)).start()
     if first == False:
         g = threading.Thread(target=rec).start()

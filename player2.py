@@ -32,99 +32,130 @@ mystuff = []
 opponenetstuff = []
 
 def check_win(canvas, window):
+    global winner
+    global answer
     p = True
     while p == True:
     #Check who wins for the firsrt row combination
         if " " in mystuff and "  " in mystuff and "   " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(50,150, 800,150, fill="red", width = 5)
             p = False
         elif " "in opponenetstuff and "  " in opponenetstuff and "   " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(50,150, 800,150, fill="red", width = 5)
             p = False
         #Check who wins for the second row combination
         elif "    " in mystuff and "     " in mystuff and "      " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(50,370, 800,370, fill="red", width = 5)
             p = False
         elif "    " in opponenetstuff and "     " in opponenetstuff and "      " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(50,370, 800,370, fill="red", width = 5)
             p = False
         #Check who wins for the third row combination
         elif "       " in mystuff and "        " in mystuff and "         " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(50,610, 800,610, fill="red", width = 5)
             p = False
         elif "       " in opponenetstuff and "        " in opponenetstuff and "         " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(50,610, 800,610, fill="red", width = 5)
             p = False
 #------------------------------------------------------------------------------------------------------
         #Check who wins for the first column combination
         elif " "in mystuff and "    " in mystuff and "       " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(150,50, 150,800, fill="red", width = 5)
             p = False
         elif " " in opponenetstuff and "    " in opponenetstuff and "       " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(150,50, 150,800, fill="red", width = 5)
             p = False
         #Check who wins for the second column combination
         elif "  " in mystuff and "     " in mystuff and "        " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(430,50, 430,800, fill="red", width = 5)
             p = False
         elif "  " in opponenetstuff and "     " in opponenetstuff and "        " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(430,50, 430,800, fill="red", width = 5)
             p = False
         #Check who wins for the third column combination
         elif "   " in mystuff and "      " in mystuff and  "         " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(670,50, 670,800, fill="red", width = 5)
             p = False
         elif "   " in opponenetstuff and "      " in opponenetstuff and "         " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(670,50, 670,800, fill="red", width = 5)
             p = False
         #------------------------------------------------------------------------------------------------------    
         #Check who wins for the first diagonal combination
         elif " " in mystuff and "     " in mystuff and "         " in mystuff:
             winner = 2
-            canvas.create_line(50,70, 790,800, fill="black", width = 5)
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
+            canvas.create_line(50,70, 790,800, fill="red", width = 5)
             p = False
         elif " " in opponenetstuff and "     " in opponenetstuff and "         " in opponenetstuff:
             winner = 1
-            canvas.create_line(50,70, 790,800, fill="black", width = 5)
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
+            canvas.create_line(50,70, 790,800, fill="red", width = 5)
             p = False
         #Check who wins for the second diagonal combination
         elif "   " in mystuff and "     " in mystuff and "       " in mystuff:
             winner = 2
+            victory = tk.Label(window, text="You Win win!", font=("Arial", 18)).pack()
             canvas.create_line(800,50,0,790, fill="red", width = 5)
             p = False
         elif "   " in opponenetstuff and "     " in opponenetstuff and "       " in opponenetstuff:
             winner = 1
+            lose = tk.Label(window, text="You Lose!", font=("Arial", 18)).pack()
             canvas.create_line(800,50,0,790, fill="red", width = 5)
 
             p = False
         #Draw
         if counter == 9:
             winner = 3
-            print("Draw")
+            label5 = tk.Label(window, text = "Draw", font=("Arial", 20)).pack() 
             p = False
+
     for widget in window.winfo_children():
         if isinstance(widget, tk.Label):
-            widget.destroy()
-    label3 = tk.Label(window, text = "Play Again? Y/N", font=("Arial", 35)).pack()
-    #play_gain1 = tk.Button(window, text = "Y", command = lambda: again(window, canvas, clientSocket)).pack()
-    #play_gain2 = tk.Button(window, text = "N", command = window.destroy).pack()
+            if widget.cget('text') == "Its opponents turn!" or widget.cget('text') == "It's your turn!":
+                widget.destroy()
+            else:
+                pass    
+    label3 = tk.Label(window, text = "Play Again? Y/N", font=("Arial", 20)).pack()
     answer = random.randint(0,1)
     answerr = str(answer)
     clientSocket.send(answerr.encode())
+    for widget in window.winfo_children():
+        if isinstance(widget, tk.Button):
+            widget.config(state='disabled')
+        else:
+            pass
+
     play_gain2 = tk.Button(window, text = "N", command = lambda: (window.destroy(), window.quit())).pack()
     play_gain1 = tk.Button(window, text = "Y", command = lambda: stop(window, canvas, clientSocket)).pack()
+    for widget in window.winfo_children():
+        if isinstance(widget, tk.Button):
+            widget.config(state='normal')
+        else:
+            pass
     return winner
 
 def stop(window, canvas, clientSocket):

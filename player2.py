@@ -7,6 +7,7 @@ from tkinter import simpledialog
 import threading
 import random
 import pickle
+
 #Winner 0: No winner yet
 #Winner 1: Player 1 wins
 #Winner 2: Player 2 wins
@@ -22,6 +23,7 @@ ip_address = str(ip_address)
 serverName = ip_address # server IP
 serverPort = 10000
 clientSocket = socket(AF_INET, SOCK_STREAM)
+#Connect to server using server IP and Port
 clientSocket.connect((serverName,serverPort))
 #Set counter to 0 for turns
 counter = 0
@@ -189,7 +191,7 @@ def create_game(clientSocket):
         first = True
         print("Going first")
     print("Loading....")
-    sleep(4)
+    sleep(2)
 
 
 
@@ -297,7 +299,6 @@ def create_game(clientSocket):
         opponenetstuff.append(turn11.get('y'))
 
 
-        print(turn11)
         for widget in window.winfo_children():
 
             if isinstance(widget, tk.Button):

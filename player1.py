@@ -25,6 +25,7 @@ ip_address = gethostbyname(hostname)
 ip_address = str(ip_address)
 serverPort = 10000
 serverSocket = socket(AF_INET,SOCK_STREAM)
+#Bind socket to private ip or 0.0.0.0
 serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 serverSocket.bind(('',serverPort))
 serverSocket.listen(1)
@@ -39,6 +40,7 @@ def check_win(canvas, window):
     global winner
     global answer
     while p == True:
+    #Now we are just going to check winners and display the line for the winner
     #Check who wins for the firsrt row combination
         if " " in mystuff and "  " in mystuff and "   " in mystuff:
             winner = 2
@@ -143,7 +145,9 @@ def check_win(canvas, window):
                 widget.destroy()
             else:
                 pass 
+
     label3 = tk.Label(window, text = "Play Again? Y/N", font=("Arial", 20)).pack()
+    
     #Get who goes first next round
     answercheck(connectionSocket)
 
@@ -153,10 +157,11 @@ def check_win(canvas, window):
             widget.config(state='disabled')
         else:
             pass
+
     play_gain2 = tk.Button(window, text = "N", command = lambda: (window.destroy(), window.quit())).pack()
     play_gain1 = tk.Button(window, text = "Y", command = lambda: stop(window, canvas, connectionSocket)).pack()    
 
-    #Enable buttons
+    #Enable buttons to not allow error
     for widget in window.winfo_children():
         if isinstance(widget, tk.Button):
             widget.config(state='normal')
@@ -195,7 +200,7 @@ def create_game(connectionSocket):
     else:
         first = False
         print("going 2nd")
-    sleep(4)
+    sleep(2)
 
     window = tk.Tk()
     window.title("Tic Tac Toe")
@@ -219,13 +224,13 @@ def create_game(connectionSocket):
     def send_msg(butt,x,y):
         global counter
         global winner
+        #turn counter
         counter += 1
         c = butt.cget('text')
         butt.destroy()
         turn.config(text="Its opponents turn!")
         X1= canvas.create_line(x+ 20, y + 150, x+170, y-20, fill="black", width = 5)
         X2= canvas.create_line(x+170, y+150, x+20, y-20, fill="black", width = 5)
-        #x - 50 y -100
         updated = {'butt': c, 'x': x, 'y': y}
         #Add to database to determine results
         mystuff.append(c)
@@ -254,7 +259,6 @@ def create_game(connectionSocket):
         opponenetstuff.append(turn11.get('x'))
         opponenetstuff.append(turn11.get('y'))
 
-        print(turn11)
         for widget in window.winfo_children():
 
             if isinstance(widget, tk.Button):
@@ -309,7 +313,6 @@ def create_game(connectionSocket):
     botcenter.place(x=290, y=580)
     botright = tk.Button(window, text="         ",bd=0,  width=17, height=8 ,font=("Arial", 16), command = lambda: send_msg(botright,570,580))
     botright.place(x=540, y=580)
-    #turn.config(text=f"Value: {data.get('value', 0)}")
     
     #if we go 2nd disable buttons
     if first == False:
@@ -344,6 +347,7 @@ while game == True:
             poo = threading.Thread(target=create_game, args=(connectionSocket,))
             poo.start()
             poo.join()
+        #else close
         print("Closing program")
         game = False
     else:

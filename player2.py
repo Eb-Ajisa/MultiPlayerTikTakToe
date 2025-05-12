@@ -363,7 +363,7 @@ while game == True:
     print("Closing Program")
     game = False
 
-# Cleaner move tracking
+# Cleaner move tracker
     board_state = {
         'A1': None, 'A2': None, 'A3': None,
         'B1': None, 'B2': None, 'B3': None,

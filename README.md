@@ -21,3 +21,6 @@ For Player 1, Bind the socket to the specific port, and the private ip address o
 Now Player 2 should bind to the similar Ip address and port as shown below
 ![image](https://github.com/user-attachments/assets/e67a0ae3-f4de-4f7b-bde5-ef04685efad9)
 
+Now let Player 1 hit run first then player 2 hits run after. After that, it is completed
+
+To Use terminal, open cmd prompt and cd into the directory with the code and type in 'python player1.py' along with 'python player2.py' in another termianl window to get the game started aswell.

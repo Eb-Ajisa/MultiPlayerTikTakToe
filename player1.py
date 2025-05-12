@@ -147,7 +147,39 @@ def check_win(canvas, window):
                 pass 
 
     label3 = tk.Label(window, text = "Play Again? Y/N", font=("Arial", 20)).pack()
+
+    # refactors check_win logic (only)
+    def evaluate_win();
+    # return 1 (opponent wins), 2 (you win), 3 (you draw), 0 (no winner yet)
+        if " " in mystuff and " " in mystuff and "  " in mystuff: 
+            return 2
+        elif " " in opponenetstuff and " " in opponenetstuff and "  " in opponenetstuff: 
+            return 1
+        elif counter == 9;
+            return 3
+        return 0;
+
+# Main thread GUI Update
+    def check_win_and_update_gui(canvas, window):
+        result = evaluate_win()
+        if result != 0:
+            window.after(0, lambda: show_result(result, canvas, window))
+
+# GUI-safe Function
+    def show_result(results, canvas, window):
+        global winner 
+        winner = result
+
+        if result = 1:
+            tk.Label(window, text = "You Lose!", font ("Arial", 18)).pack()
+        elif result == 2:
+            tk.Label(window, text = "You Win!", font("Arial", 18)).pack()
+         elif result == 3:
+            tk.Label(window, text = "Draw", font("Arial", 18)).pack()
+
+    threading.Thread(target = lambda: check_win_and_update_gui(canvas, window)).start()
     
+
     #Get who goes first next round
     answercheck(connectionSocket)
 

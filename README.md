@@ -1,4 +1,4 @@
-# MultiPlayerTikTakToe
+# <ins>MultiPlayerTikTakToe</ins>
 **To First allow either program to work, import these modules into your IDE:**
 - 	<ins>Go into your terminal in VS code and type in the following in all lowercase</ins>
 - 	<ins>Pip install pillow</ins>

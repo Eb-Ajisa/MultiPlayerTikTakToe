@@ -363,5 +363,14 @@ while game == True:
     print("Closing Program")
     game = False
 
+# Cleaner move tracking
+    board_state = {
+        'A1': None, 'A2': None, 'A3': None,
+        'B1': None, 'B2': None, 'B3': None,
+        'C1': None, 'C2': None, 'C3': None
+    }
+
+board_state ['A1'] = '0'
+
 clientSocket.shutdown(SHUT_RDWR)
 clientSocket.close()
